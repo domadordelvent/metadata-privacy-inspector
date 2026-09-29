@@ -1,10 +1,25 @@
 SENSITIVE_FIELDS = {
+    #Images
     "Make": "Device manufacturer",
     "Model": "Device model",
     "Software": "Software / firmware information",
     "DateTime": "Creation or modification timestamp",
     "Artist": "Author identity",
     "Copyright": "Copyright / owner information",
+
+    #Documents
+    "Author": "Document author",
+    "Creator": "Software or device used to create the document",
+    "Producer": "Software used to produce the document",
+    "CreationDate": "File creation timestamp",
+    "ModDate": "File modification timestamp",
+
+    # Audio / Video
+    "Comment": "Free-text metadata that may contain personal information",
+    "AlbumArtist": "Author identity",
+    "Composer": "Author identity",
+    "Location": "Geographic location",
+
 }
 
 
