@@ -1,140 +1,167 @@
 # Metadata Privacy Inspector
 
-Projecte de portafolis en Python per inspeccionar metadades de documents,
-imatges, àudio i vídeo, detectar indicis de dades personals i generar còpies
-amb eliminació selectiva de metadades. Inclou CLI, API REST amb FastAPI i una
-interfície web en anglès amb HTML, CSS i JavaScript sense frameworks.
+## Demo Video
 
-> **Ús local exclusivament. L'aplicació no està preparada per exposar-se
-> públicament a Internet.** Publicar el codi a GitHub no implica allotjar una
-> demo pública. No hi ha autenticació, quotes globals ni aïllament dels parsers.
-> Consulteu [SECURITY.md](SECURITY.md) abans de processar fitxers no fiables.
+[![Watch the Metadata Privacy Inspector demo on YouTube](https://img.youtube.com/vi/5oJqF-U3jjw/hqdefault.jpg)](https://youtu.be/5oJqF-U3jjw)
 
-## Funcionalitats
+**[Watch the demo on YouTube](https://youtu.be/5oJqF-U3jjw)** — a walkthrough of the
+local interface: upload a synthetic image with fictional GPS coordinates, inspect
+its metadata and privacy alerts, remove supported metadata, and analyse the
+cleaned copy to verify that the coordinates are gone.
 
-- Selecció o arrossegament d'un fitxer i visualització de metadades, resum de
-  privacitat i alertes, amb ubicació GPS destacada quan es detecta.
-- Anàlisi de PDF, DOCX, XLSX, PPTX, MP3, MP4/MOV i imatges raster admeses.
-- Eliminació selectiva per JPG/JPEG, PNG, PDF, DOCX/XLSX/PPTX i MP3, amb
-  verificació de preservació i informe dels camps que continuen presents.
-- Descàrrega de la còpia netejada, sense sobreescriure l'original.
-- Extractors compartits entre CLI i API. Tests amb fitxers sintètics temporals;
-  no cal publicar documents personals per executar-los.
+A Python portfolio project for inspecting metadata in documents, images, audio
+and video, identifying signs of personal information, and creating copies with
+selective metadata removal. It includes a CLI, a local FastAPI REST API, and an
+English web interface built with HTML, CSS and JavaScript without frameworks.
 
-## Instal·lació
+> **Current status: functional for local use, but not ready for public Internet
+> exposure.** Publishing the source code and demo does not make the application
+> a production web service. There is no authentication, global request quota or
+> parser sandbox. Read [SECURITY.md](SECURITY.md) before processing untrusted files.
 
-Entorn comprovat: Linux x86_64, Python 3.12.3 i Node.js 18.19.1. Node.js només
-és necessari per als tests JavaScript. FFprobe és necessari per analitzar vídeos;
-la resta de formats no el requereixen. No s'ha validat Windows ni macOS.
+## Implemented Features
 
-Després de clonar el repositori i entrar al directori `metadata-privacy-inspector`:
+- Select or drag and drop one file; view extracted metadata, a privacy summary
+  and alerts, with a highlighted GPS location when detected.
+- Inspect PDF, DOCX, XLSX, PPTX, MP3, MP4/MOV and supported raster images.
+- Selectively remove metadata from JPG/JPEG, PNG, PDF, DOCX/XLSX/PPTX and MP3,
+  with preservation checks and a report of fields that remain.
+- Download a cleaned copy without overwriting the original.
+- Share extractors between the CLI and API. Tests generate synthetic temporary
+  files; personal documents are not required to run them.
+
+## Technologies
+
+| Component | Technologies |
+| --- | --- |
+| Runtime and API | Python, FastAPI, Starlette, AnyIO, Uvicorn, python-multipart |
+| Web interface | HTML, CSS, vanilla JavaScript, browser File and Blob APIs |
+| Images | Pillow and EXIF/GPS parsing |
+| Documents | pypdf, python-docx, openpyxl, python-pptx, lxml |
+| Audio and video | Mutagen, FFprobe from FFmpeg |
+| Testing | pytest, HTTPX/TestClient, Node.js built-in test runner; XlsxWriter for test fixtures |
+
+Python dependencies are declared in [requirements.txt](requirements.txt).
+FFprobe is an external system dependency.
+
+## Installation
+
+Verified environment: Linux x86_64, Python 3.12.3 and Node.js 18.19.1. Node.js is
+only needed for JavaScript tests. FFprobe is required for video analysis; other
+formats do not require it. Windows and macOS have not been validated.
+
+Clone the repository and enter the project directory:
 
 ```bash
+git clone https://github.com/domadordelvent/metadata-privacy-inspector.git
+cd metadata-privacy-inspector
 python3 --version
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m pip check
 ```
 
-Si el sistema no disposa de `venv`, instal·leu el paquet corresponent de la vostra
-distribució. Per a vídeos, instal·leu FFmpeg amb el gestor de paquets del sistema
-i comproveu que el binari sigui accessible i tingui correccions de seguretat:
+If `venv` is unavailable, install the appropriate package for your distribution.
+For videos, install FFmpeg using your system package manager and check that
+FFprobe is available and includes security fixes:
 
 ```bash
 ffprobe -version
 ```
 
-`requirements.txt` inclou les eines de tests existents. Les versions directes
-estan fixades, però no totes les transitives ni els paquets del sistema: aquesta
-instal·lació és reproduïble en l'entorn comprovat, no un build idèntic garantit.
-No copieu un `venv` d'una altra màquina.
+`requirements.txt` includes the existing test tools. Direct dependency versions
+are pinned, but not every transitive dependency or system package: installation
+was verified in the environment above, rather than guaranteed to produce an
+identical build everywhere. Do not copy a virtual environment from another machine.
 
-## Execució
+## Running the Application
 
-Des de l'arrel del projecte, amb l'entorn instal·lat:
+From the project root, with the environment installed:
 
 ```bash
-.venv/bin/python main.py /ruta/document.pdf
+.venv/bin/python main.py /path/to/document.pdf
 .venv/bin/python web_app.py
 ```
 
-L'entrada de l'API vincula el servidor exclusivament a `127.0.0.1:8000`.
-No està preparada per exposició pública a Internet. No cal canviar el CLI.
+The API entry point binds exclusively to `127.0.0.1:8000`. Open
+`http://127.0.0.1:8000/` in your browser. Keep the application local; do not expose
+it through a public interface, reverse proxy or tunnel without addressing its
+security gaps. The CLI remains available independently.
 
-## Interfície web
+## Web Interface
 
-Obrir `http://127.0.0.1:8000/` després d'iniciar l'aplicació. Arrossegar un
-fitxer o seleccionar-lo, prémer **Analyze File** i revisar el resum, totes
-les metadades i els senyals de privacitat. Les coordenades GPS o la ubicació
-incorporada apareixen en una secció destacada. **Analyze Another File**
-neteja l'informe i torna a la selecció.
+Drag a file onto the page or select it, click **Analyze File**, and review the
+summary, all extracted metadata and privacy signals. Embedded GPS coordinates
+or location appear in a highlighted section. **Analyze Another File** clears
+the report and returns to file selection.
 
-Tema fosc responsive, navegació amb teclat, avisos accessibles i suport per
-a moviment reduït. Tots els recursos són locals, sense CDN, fonts remotes,
-mapes, telemetria ni emmagatzematge persistent al navegador. Les dades del
-fitxer es mostren exclusivament com a text. El document es conserva només
-com a referència temporal per enviar-lo i poder reintentar en cas d'error;
-la referència es conserva en memòria mentre es mostra l'informe per poder
-crear una còpia netejada; s'allibera en iniciar una altra anàlisi o sortir.
+The interface has a responsive dark theme, keyboard navigation, accessible
+notifications and reduced-motion support. Application resources are local: no
+CDN, remote fonts, maps, telemetry or persistent browser storage. File data is
+rendered as text. The original file reference remains in browser memory for
+retrying analysis and creating a cleaned copy; it is released when starting
+another analysis or leaving the page. The YouTube thumbnail in this README is
+external documentation content, not an application resource.
 
-Els tests inclouen les rutes de la interfície i onze proves d'interacció
-JavaScript sense dependències, executades amb Node si està disponible.
+Tests cover the interface routes and eleven JavaScript interaction scenarios
+without additional JavaScript dependencies, using Node.js when available.
 
-## Captures de pantalla
+## Screenshots
 
-Pantalla inicial real de la interfície local, sense documents ni dades personals:
+Actual initial screen of the local interface, without documents or personal data:
 
-![Pantalla inicial del Metadata Privacy Inspector](docs/screenshots/local-interface.png)
+![Metadata Privacy Inspector local interface](docs/screenshots/local-interface.png)
 
-Les captures s'han de generar amb dades sintètiques. No publiqueu informes reals,
-noms de documents personals ni coordenades de les vostres fotografies. Vegeu
-[les instruccions de captura](docs/screenshots/README.md).
+Generate screenshots using synthetic data. Do not publish real reports, personal
+document names or coordinates from personal photographs. See the
+[screenshot instructions](docs/screenshots/README.md).
 
 ## POST /api/inspect
 
-Enviar exactament un fitxer multipart amb nom de camp `file`:
+Send exactly one multipart file in a field named `file`:
 
 ```bash
-curl -F 'file=@/ruta/document.pdf' http://127.0.0.1:8000/api/inspect
+curl -F 'file=@/path/to/document.pdf' http://127.0.0.1:8000/api/inspect
 ```
 
-Resposta amb tres blocs:
+The response contains three sections:
 
 - `file`: `name`, `extension`, `size_bytes`, `mime_type`.
-- `metadata`: diccionari de l'extractor existent.
-- `findings`: alertes de l'analitzador de privacitat existent.
+- `metadata`: the existing extractor's metadata dictionary.
+- `findings`: alerts from the existing privacy analyser.
 
-El nom és el basename original; no es retornen rutes de temporals. El MIME
-del navegador no és una prova del format: es valida el contingut. Els
-documents no es desen permanentment. Totes les respostes de l'endpoint,
-incloent-hi errors, porten `Cache-Control: no-store`.
+The name is the original basename; temporary paths are not returned. The browser
+MIME type is not proof of format: the server validates content. Documents are not
+intentionally retained after processing. All endpoint responses, including errors,
+include `Cache-Control: no-store`. Abrupt process termination may leave temporary
+files, as described below and in the security documentation.
 
-Dates i hores es converteixen a ISO 8601; tuples a llistes; racionals EXIF
-a nombres; Decimal a text per conservar precisió. Bytes es retornen com
-`{"encoding": "base64", "data": "..."}`. NaN i infinits es converteixen a
-`null`. Tipus desconeguts provoquen un error genèric, sense exposar-ne la
-representació. Les regles de privacitat s'executen abans de serialitzar.
+Dates and times are converted to ISO 8601, tuples to lists, EXIF rationals to
+numbers, and Decimal values to strings to preserve precision. Bytes are returned
+as `{"encoding": "base64", "data": "..."}`. NaN and infinities become `null`.
+Unknown types produce a generic error without exposing their representation.
+Privacy rules run before serialization.
 
-## Límits i errors
+## Limits and Errors
 
-Fitxer: 20 MiB. Cos HTTP total: 20 MiB + 64 KiB per a les capçaleres de parts
-i delimitadors multipart. Es compten els bytes reals abans de parsejar el
-multipart, també sense `Content-Length`. Una declaració de mida incorrecta
-es rebutja. Només un camp `file`, sense camps addicionals. Multipart ha
-d'acabar amb el delimitador de tancament; no s'admet epíleg.
+File limit: 20 MiB. Total HTTP body limit: 20 MiB + 64 KiB for multipart part
+headers and boundaries. Actual bytes are counted before multipart parsing,
+including without `Content-Length`; incorrect length declarations are rejected.
+Only one `file` field is accepted, without additional fields. Multipart must end
+with its closing delimiter; epilogues are not accepted.
 
-| HTTP | Motiu |
+| HTTP | Meaning |
 | --- | --- |
-| 400 | Pujada buida, incompleta o malformada; camps o longitud incorrectes |
-| 413 | Fitxer o cos HTTP massa gran |
-| 415 | Transport no multipart o format de fitxer no admès |
-| 422 | Contingut incompatible, corrupte o rebutjat pels límits de validació |
-| 500 | Error inesperat, dependència externa absent o timeout d'anàlisi |
+| 400 | Empty, incomplete or malformed upload; incorrect fields or length |
+| 413 | File or HTTP body exceeds the size limit |
+| 415 | Non-multipart transport or unsupported file format |
+| 422 | Incompatible, corrupted or rejected content under validation limits |
+| 500 | Unexpected error, missing external dependency or analysis timeout |
 
-Els errors retornen `{"detail": "missatge genèric"}` sense traces ni rutes.
-La còpia, validació, extracció i serialització s'executen en un thread pool.
-Els streams multipart i el cos HTTP temporal es tanquen; el context de la
-fase 2 elimina el fitxer d'anàlisi.
+Errors return `{"detail": "generic message"}` without stack traces or internal
+paths. Copying, validation, extraction and serialization run in a thread pool.
+Multipart streams and the temporary HTTP body are closed; the staging context
+removes analysis files on normal completion and handled exceptions.
 
 ## Tests
 
@@ -143,88 +170,118 @@ fase 2 elimina el fitxer d'anàlisi.
 node --test tests/frontend.test.cjs
 ```
 
-Vegeu [SECURITY.md](SECURITY.md) per als formats, límits i riscos pendents.
+See [SECURITY.md](SECURITY.md) for supported formats, limits and unresolved risks.
 
+## Selective Metadata Removal
 
-## Eliminació selectiva de metadades
+After analysis, **Remove Metadata** sends the same original to `POST /api/clean`.
+The server creates and verifies an independent copy; **Download Clean File** is
+only enabled after successful verification. The report identifies removed,
+changed and remaining fields, remaining alerts, and method limitations.
 
-Després d'analitzar, **Remove Metadata** envia el mateix original a
-`POST /api/clean`. El servidor genera i verifica una còpia independent;
-**Download Clean File** només s'habilita després d'una verificació reeixida.
-L'informe identifica camps eliminats, canviats i encara presents, amb les
-alertes restants i les limitacions del mètode.
+- JPG/JPEG: removes EXIF, XMP, IPTC and comment segments without recompression.
+  PNG: removes EXIF, text and timestamps without changing pixels. Colour profiles
+  are preserved. Non-neutral orientation, animated PNG and unknown auxiliary or
+  provenance structures are rejected.
+- DOCX/XLSX/PPTX: only core properties in `docProps/core.xml`. All other members
+  are compared byte for byte after decompression. Signed documents, documents
+  with macros and unsupported property relationships are rejected.
+- PDF: removes document information and document XMP, including orphaned objects.
+  Only simple, unencrypted PDFs are supported; signatures, forms, annotations,
+  attachments, additional structures and unverifiable compression are rejected.
+  Page structures, resources and content are compared. Verification limits
+  depth, object count and decompression per stream.
+- MP3: removes ID3v1/v2 without re-encoding and verifies that the remaining bytes
+  exactly match the original payload. Artwork and other ID3 features are also
+  removed. ID3 signatures, APE tags and unsupported structures are rejected.
+- MP4/MOV: cleaning is disabled. Other formats remain analysis-only; no additional
+  cleaning formats have been introduced.
 
-- JPG/JPEG: retirada de segments EXIF, XMP, IPTC i comentaris, sense
-  recompressió. PNG: retirada d'EXIF, text i dates sense modificar els píxels.
-  Es conserven els perfils de color. Orientació no neutra, PNG animat i
-  blocs auxiliars desconeguts/proveniència es rebutgen.
-- DOCX/XLSX/PPTX: només propietats bàsiques de `docProps/core.xml`. Es
-  comparen tots els altres membres descomprimits byte per byte. Documents
-  signats, amb macros o amb relacions de propietats no compatibles es rebutgen.
-- PDF: informació i XMP del document, eliminant objectes orfes. Només PDFs
-  simples no xifrats: es rebutgen signatures, formularis, anotacions,
-  adjunts, estructures addicionals i compressions no verificables. Es comparen
-  les estructures de pàgines, recursos i continguts. La verificació limita
-  profunditat, nombre d'objectes i descompressió per stream.
-- MP3: ID3v1/v2 sense recodificar; es verifica que la resta dels bytes són
-  exactament els originals. Portades i altres funcionalitats ID3 també es
-  retiren. Signatures ID3, etiquetes APE i estructures no compatibles es rebutgen.
-- MP4/MOV: neteja desactivada. Els altres formats continuen sent només
-  analitzables; no s'han afegit formats de neteja.
+The copy is validated and analysed again. The XLSX reader supplies default author
+and dates for absent properties; the cleaning report excludes these after checking
+the actual XML, without changing the existing extractor. Mutagen may estimate a
+different duration after ID3v1 removal; the report explains this and verifies
+preservation of audio bytes.
 
-La còpia es torna a validar i analitzar. El lector XLSX genera autor/dates
-per defecte quan falten propietats: l'informe de neteja els exclou després
-comprovar l'XML real, sense alterar l'extractor existent. Mutagen pot estimar
-una durada diferent després de retirar ID3v1; l'informe ho adverteix i la
-preservació de l'àudio es verifica pels bytes.
+The `/api/clean` response contains `name`, base64 `data`, and `report`. The server
+removes disk temporaries before sending a successful response and retains the
+response bytes in memory. There are no hosted-document tokens or URLs, or retention
+until a later download. The browser creates an in-memory Blob with a local URL,
+revoked on reset, repeated cleaning or leaving the page. Explicit download saves
+the copy to the user's device.
 
-Resposta de `/api/clean`: `name`, `data` (base64) i `report`. El servidor
-elimina els temporals abans d'enviar la resposta i manté només els bytes de
-la resposta en memòria. No hi ha tokens, URLs de documents allotjats ni
-retenció fins a una descàrrega posterior. El navegador construeix una còpia
-Blob en memòria amb URL local, que es revoca en reiniciar, tornar a netejar
-o sortir de la pàgina. La descàrrega explícita desa la còpia al dispositiu.
+Cleaning does not guarantee removal of all metadata or personal information in
+content. It does not remove all revisions, document comments, connections, names
+in cells, visible text, embedded resource information or every form of signature
+or provenance.
 
-La neteja no garanteix absència de totes les metadades ni de dades personals
-al contingut. No és una eina de supressió de revisions, comentaris de documents,
-connexions, noms en cel·les, text visible, informació dins de recursos incrustats
-ni totes les formes possibles de signatura/proveniència.
+## Architecture
 
+`web_app.py` receives and bounds multipart uploads; `upload_handler.py` validates
+and stages temporary files. `inspection.py` coordinates `metadata_extractor.py`
+and `privacy_analyzer.py`; `serialization.py` converts values to JSON.
+`metadata_cleaner.py` creates and verifies cleaned copies. `static/` contains the
+interface and `main.py` provides the CLI entry point.
 
-## Arquitectura
+## Limitations
 
-`web_app.py` rep i limita el multipart; `upload_handler.py` valida i crea els
-fitxers temporals. `inspection.py` coordina `metadata_extractor.py` i
-`privacy_analyzer.py`; `serialization.py` converteix els valors a JSON.
-`metadata_cleaner.py` genera i verifica les còpies netejades. `static/` conté la
-interfície i `main.py` l'entrada CLI.
+- Analysis reports fields covered by the extractors; it is not an exhaustive
+  audit of embedded data or an antivirus scanner.
+- No alerts does not guarantee no personal information. Cleaning does not
+  anonymize visible content, revisions, comments or embedded resources.
+- MP4/MOV and image formats other than JPG/JPEG/PNG are analysis-only.
+- Web limits may reject legitimate files. The CLI does not apply the upload
+  validation and limits layer; use it only with trusted files.
+- There are no global request limits, hard timeouts for Python parsers or sandbox.
+  The FFprobe timeout does not bound all process memory or external accesses.
+- Temporaries are removed on normal completion; abrupt termination may leave
+  residues, and secure physical erasure is not guaranteed.
 
-## Limitacions
+## Security Research Roadmap
 
-- L'anàlisi mostra els camps que cobreixen els extractors; no és una auditoria
-  exhaustiva de totes les dades incrustades ni un escàner antivirus.
-- L'absència d'alertes no garanteix absència de dades personals. La neteja no
-  anonimitza el contingut visible, revisions, comentaris o recursos incrustats.
-- MP4/MOV i els formats d'imatge diferents de JPG/JPEG/PNG només s'analitzen.
-- Els límits web poden rebutjar fitxers legítims. El CLI no aplica la capa de
-  validació i límits de pujada; utilitzeu-lo només amb fitxers de confiança.
-- No hi ha límits globals de càrrega, timeout dur dels parsers Python ni sandbox.
-  El timeout de FFprobe no limita tota la memòria o els accessos del procés.
-- Els temporals s'eliminen en acabar normalment; una terminació abrupta pot deixar
-  residus i no es garanteix esborrament físic segur.
+The project will also serve as a local security research environment for
+investigating the gaps detected in the initial review and implementing verifiable
+fixes. **These are confirmed missing safeguards and potential risks, not
+necessarily demonstrated exploitable vulnerabilities.** Detailed findings and
+their evidence are documented in [SECURITY.md](SECURITY.md).
 
-## Validació de la preparació del portafolis
+Research will cover:
 
-El 2026-10-11 es va instal·lar `requirements.txt` en un entorn virtual nou amb
-Python 3.12.3 a Linux. `pip check` no va detectar conflictes i van passar els
-146 tests Python. Els 11 tests JavaScript van passar amb Node.js 18.19.1.
-La instal·lació va utilitzar el registre configurat i la memòria cau de pip;
-no s'ha comprovat una instal·lació sense xarxa o en altres plataformes.
+- Denial of service (DoS) and the absence of global request, concurrency and
+  admission limits.
+- Slow HTTP uploads and missing upload reception deadlines.
+- CPU, memory and processing-time exhaustion in validation and extraction.
+- Excessive RAM consumption during image decoding and pixel preservation checks.
+- FFmpeg vulnerabilities, pending security updates and system dependency tracking.
+- FFprobe isolation and potential unauthorized network or local file access.
+- Subprocess output capture without explicit size limits.
+- Serialization without explicit size or depth limits.
+- Temporary file handling and recovery after crashes or forced termination.
+- Deployment security: HTTPS, document privacy, retention and protection against
+  abuse.
 
-Hi ha un avís de deprecació del TestClient de Starlette en usar HTTPX. No s'ha
-introduït `httpx2` ni s'han canviat les dependències per silenciar-lo.
+Tests will run **only in a local, controlled environment with synthetic files**.
+Results will record reproduction conditions, versions, resource measurements and
+whether a suspected risk is confirmed. Corrections will be evaluated with
+repeatable checks and regression tests where appropriate, including verification
+that existing behavior and privacy guarantees are preserved.
 
-Abans de publicar, reviseu [la comprovació de publicació](docs/PUBLISHING.md):
-les mostres històriques són sintètiques segons la confirmació del propietari.
-Es conserva l'historial del repositori existent; `.gitignore` i l'exclusió de
-l'índex no eliminen els artefactes de commits anteriors.
+This roadmap describes future work, not safeguards already implemented. The
+application is functional for local use and **is not yet ready for public
+Internet exposure**.
+
+## Portfolio Validation
+
+On 2026-10-11, `requirements.txt` was installed in a fresh virtual environment
+using Python 3.12.3 on Linux. `pip check` reported no dependency conflicts and
+146 Python tests passed. All 11 JavaScript tests passed using Node.js 18.19.1.
+Installation used the configured package registry and pip cache; offline
+installation and other platforms have not been verified.
+
+Starlette TestClient emits an HTTPX deprecation warning. `httpx2` has not been
+introduced and dependencies have not been changed to silence it.
+
+See the [publication review](docs/PUBLISHING.md): historical test samples are
+synthetic according to the owner's confirmation. The existing repository history
+is preserved; `.gitignore` and index removal do not remove artifacts from earlier
+commits.
