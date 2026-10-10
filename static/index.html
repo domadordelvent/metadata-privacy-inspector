@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Inspect the hidden metadata in your files and understand what they reveal about you.">
+  <title>Metadata Privacy Inspector</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Metadata Privacy Inspector home"><span class="brand-mark" aria-hidden="true">M<span>∕</span>P</span><span>METADATA<span class="brand-secondary">PRIVACY INSPECTOR</span></span></a>
+    <span class="local-badge"><span class="status-dot"></span> LOCAL WORKSPACE</span>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow"><span aria-hidden="true">⌁</span> FILE INTELLIGENCE / PRIVACY ANALYSIS</p>
+      <h1 id="page-title">Metadata Privacy<br><span>Inspector</span><span class="title-dot">.</span></h1>
+      <p class="hero-description">Your files tell a story. Find out what they reveal.<br>Inspect hidden metadata and uncover personal information before you share.</p>
+      <div class="trust-strip"><span><span class="mini-dot"></span> Local processing</span><span>No document retention</span><span>No third-party services</span></div>
+    </section>
+
+    <section id="upload-panel" class="workspace" aria-labelledby="upload-heading">
+      <div class="panel-heading"><div><p class="eyebrow">01 / INSPECT</p><h2 id="upload-heading">Start with a file</h2></div><span class="panel-tag">ONE FILE AT A TIME</span></div>
+      <form id="upload-form" novalidate>
+        <label id="drop-zone" class="drop-zone" for="file-input">
+          <input id="file-input" type="file" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.tif,.tiff,.ico,.ppm,.pgm,.pbm,.pdf,.docx,.xlsx,.pptx,.mp3,.mp4,.mov" aria-describedby="upload-help formats-help">
+          <span class="upload-icon" aria-hidden="true">↥</span>
+          <strong id="drop-title">Drop your file here</strong>
+          <span id="drop-description">or <span class="browse-label">browse files</span> to get started</span>
+          <span id="selected-size" class="selected-size" hidden></span>
+          <span id="upload-help" class="upload-limit">One file · Up to 20 MiB</span>
+        </label>
+        <div id="formats-help" class="formats"><span class="format-chip">IMAGES</span><span class="format-chip">PDF</span><span class="format-chip">DOCX / XLSX / PPTX</span><span class="format-chip">MP3</span><span class="format-chip">MP4 / MOV</span></div>
+        <details class="format-details"><summary>View supported image formats</summary><p>JPEG, PNG, GIF, WebP, BMP, TIFF, ICO, PPM, PGM and PBM.</p></details>
+        <div id="error-message" class="error-message" role="alert" hidden></div>
+        <div class="action-row"><p>Look beneath the surface.<br><span>File contents are checked before analysis.</span></p><button id="analyze-button" class="primary-button" type="submit" disabled>Analyze File <span aria-hidden="true">↗</span></button></div>
+      </form>
+      <div id="progress" class="progress" role="status" aria-live="polite" hidden><span class="spinner" aria-hidden="true"></span><div><strong>Inspecting your file</strong><p>Reading metadata and checking privacy signals…</p></div><span class="progress-bars" aria-hidden="true"><i></i><i></i><i></i></span></div>
+    </section>
+
+    <section id="results" class="results" aria-labelledby="results-heading" hidden>
+      <div class="results-heading"><div><p class="eyebrow">02 / REPORT</p><h2 id="results-heading" tabindex="-1">Your file, revealed.</h2></div><button id="reset-button" type="button" class="secondary-button">Analyze Another File <span aria-hidden="true">↗</span></button></div>
+      <div class="summary-grid"><div class="summary-card"><span class="summary-label">FILE NAME</span><strong id="result-name"></strong></div><div class="summary-card"><span class="summary-label">FILE TYPE</span><strong id="result-type"></strong><span id="result-mime" class="muted"></span></div><div class="summary-card"><span class="summary-label">FILE SIZE</span><strong id="result-size"></strong></div></div>
+      <section id="gps-panel" class="gps-panel" aria-labelledby="gps-heading" hidden><div><p class="eyebrow">LOCATION SIGNAL</p><h3 id="gps-heading">Geographic information detected</h3><p>This file may reveal where it was created. Coordinates stay in this workspace.</p></div><div id="gps-values" class="gps-values"></div></section>
+      <section class="privacy-summary" aria-labelledby="privacy-summary-heading">
+        <p class="eyebrow">BEFORE YOU SHARE</p>
+        <h3 id="privacy-summary-heading">Privacy Summary</h3>
+        <p id="privacy-summary-intro" class="section-description"></p>
+        <div id="privacy-summary-items" class="privacy-summary-items"></div>
+        <p class="privacy-summary-note">This summary describes embedded metadata, which may be edited or inaccurate. It does not inspect everything visible inside the file.</p>
+      </section>
+      <section class="metadata-panel cleaning-panel" aria-labelledby="cleaning-heading">
+        <div class="section-heading"><h3 id="cleaning-heading">Create a cleaner copy</h3><button id="remove-button" type="button" class="secondary-button">Remove Metadata</button></div>
+        <p class="section-description">Remove supported metadata without changing the original. Signed documents and unsupported structures are rejected. MP4 and MOV cleaning is disabled.</p>
+        <p id="clean-status" role="status" class="section-description"></p>
+        <div id="clean-report" hidden></div>
+        <a id="download-button" class="secondary-button" hidden>Download Clean File <span aria-hidden="true">↧</span></a>
+      </section>
+      <div class="report-grid">
+        <section class="metadata-panel" aria-labelledby="metadata-heading"><div class="section-heading"><h3 id="metadata-heading">Extracted metadata</h3><span id="metadata-count" class="count-badge"></span></div><div class="table-wrap"><table><caption class="sr-only">All metadata extracted from the selected file</caption><thead><tr><th scope="col">FIELD</th><th scope="col">VALUE</th></tr></thead><tbody id="metadata-body"></tbody></table></div><p id="metadata-empty" class="empty-note" hidden>No metadata was found in this file.</p></section>
+        <section class="findings-panel" aria-labelledby="findings-heading"><div class="section-heading"><h3 id="findings-heading">Privacy signals</h3><span id="findings-count" class="count-badge warning-badge"></span></div><p class="section-description">Information to review before sharing.</p><div id="findings-list"></div><p id="findings-empty" class="empty-note" hidden>No sensitive fields were detected by the current rules.</p><p class="findings-note">Signals indicate potentially sensitive metadata, not a complete assessment of file privacy.</p></section>
+      </div>
+    </section>
+    <section id="how-it-works" class="how-it-works" aria-label="How it works"><article><span class="step-number">01</span><h3>Select a file</h3><p>Images, documents, audio or video. One file, one focused inspection.</p></article><article><span class="step-number">02</span><h3>Uncover the details</h3><p>See authors, timestamps, device information and other embedded metadata.</p></article><article><span class="step-number">03</span><h3>Share with awareness</h3><p>Review privacy signals and understand what travels with your file.</p></article></section>
+    <noscript><p class="error-message">JavaScript is required to upload a file and view the inspection report.</p></noscript>
+  </main>
+  <footer><span>METADATA PRIVACY INSPECTOR</span><span>Know what you share<span class="footer-dot">.</span></span></footer>
+</body>
+</html>

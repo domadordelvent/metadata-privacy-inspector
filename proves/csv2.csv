@@ -1,6 +1,0 @@
-name,email,age,_line,_errors
-Pere,pere@email.com,abc,4,Age no és enter
-Laura,lauraemail.com,28,5,Email invàlid
-Marc,,50,6,Falta email
-Eva,eva@email.com,130,7,Age fora de rang
-Joan,joan@email.com,-5,8,Age fora de rang

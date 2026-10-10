@@ -79,25 +79,29 @@ def extract_xlsx_metadata(file_path: Path) -> dict:
     metadata = {}
 
     workbook = load_workbook(file_path, read_only=True, data_only=True)
-    properties = workbook.properties
+    try:
+        properties = workbook.properties
 
-    fields = {
-        "Title": properties.title,
-        "Subject": properties.subject,
-        "Author": properties.creator,
-        "Keywords": properties.keywords,
-        "Comments": properties.description,
-        "LastModifiedBy": properties.lastModifiedBy,
-        "CreationDate": properties.created,
-        "ModDate": properties.modified,
-        "Category": properties.category,
-    }
+        fields = {
+            "Title": properties.title,
+            "Subject": properties.subject,
+            "Author": properties.creator,
+            "Keywords": properties.keywords,
+            "Comments": properties.description,
+            "LastModifiedBy": properties.lastModifiedBy,
+            "CreationDate": properties.created,
+            "ModDate": properties.modified,
+            "Category": properties.category,
+        }
 
-    for key, value in fields.items():
-        if value not in (None, ""):
-            metadata[key] = value
+        for key, value in fields.items():
+            if value not in (None, ""):
+                metadata[key] = value
 
-    return metadata
+        return metadata
+    finally:
+        workbook.close()
+
 
 def extract_pptx_metadata(file_path: Path) -> dict:
     metadata = {}
@@ -170,6 +174,7 @@ def extract_video_metadata(file_path: Path) -> dict:
         capture_output=True,
         text=True,
         check=True,
+        timeout=15,
     )
 
     data = json.loads(result.stdout)
